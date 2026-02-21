@@ -303,7 +303,7 @@ function renderContentPanel() {
   renderTable(rows);
 }
 
-/* ─── Generate Insights (Gemini API) ─────────── */
+/* ─── Generate Insights (Gemini via secure backend) ── */
 async function generateInsights() {
   const btn = document.getElementById("btn-insights");
   const panel = document.getElementById("insights-panel");
@@ -316,17 +316,6 @@ async function generateInsights() {
   if (!rows || rows.length === 0) {
     panel.style.display = "block";
     panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">info</span> Please select a date range first to generate insights.</div>`;
-    return;
-  }
-
-  // Get API key
-  const apiKey = (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY)
-    ? GEMINI_API_KEY
-    : prompt("Enter your Gemini API key:");
-
-  if (!apiKey) {
-    panel.style.display = "block";
-    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">key_off</span> No API key provided. Add it to config.js or enter it when prompted.</div>`;
     return;
   }
 
@@ -344,35 +333,24 @@ async function generateInsights() {
     moduleGroups[m].push(`- [${r["Sub-Modules"]}] ${r["Observations"]} (Status: ${r["Status"] || "Open"})`);
   });
 
-  let promptText = `You are a senior QA analyst. Below are software testing observations grouped by module for the period "${activeDateRange || activeMonth}". For each module, write:
-1. A short summary paragraph of the issues found.
-2. Specific, actionable fix suggestions for the development team.
-
-Keep the tone professional but concise. Format clearly with module names as bold headings.\n\n`;
+  let promptText = `You are a senior QA analyst. Below are software testing observations grouped by module for the period "${activeDateRange || activeMonth}". For each module, write:\n1. A short summary paragraph of the issues found.\n2. Specific, actionable fix suggestions for the development team.\n\nKeep the tone professional but concise. Format clearly with module names as bold headings.\n\n`;
 
   for (const [mod, obs] of Object.entries(moduleGroups)) {
     promptText += `**Module: ${mod}**\n${obs.join("\n")}\n\n`;
   }
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
-      }
-    );
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err?.error?.message || `HTTP ${res.status}`);
-    }
+    // Call our secure backend proxy — API key never touches the browser
+    const res = await fetch("/api/insights", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: promptText })
+    });
 
     const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+    if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+
+    const text = data?.text || "No response received.";
 
     // Render markdown-like output
     const html = text
