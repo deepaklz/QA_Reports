@@ -1,0 +1,15 @@
+# Git ignore file for the QA Testing Report Dashboard
+
+# Gemini API key — never commit this
+config.js
+
+# Excel temp files
+~$*.xlsx
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
