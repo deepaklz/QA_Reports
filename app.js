@@ -214,7 +214,7 @@ function renderTable(rows) {
     const obs = (r["Observations"] || "").replace(/\n/g, "<br>");
 
     const linkHtml = r["Links"]
-      ? `<a href="${r["Links"]}" target="_blank"><span class="material-icons-round">image</span>${r["Links"]}</a>`
+      ? `<a href="${r["Links"]}" target="_blank" rel="noopener noreferrer"><span class="material-icons-round">open_in_new</span>View Screenshot</a>`
       : `<span style="color:var(--neutral-400);font-size:0.78rem">—</span>`;
 
     return `

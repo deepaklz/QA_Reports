@@ -18,7 +18,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Add new plan button - fade",
-    "Links": "Untitled1.jpg",
+    "Links": "https://drive.google.com/file/d/1Uqzyab0fdchLw5rLqKZLYhOrXILxAY1X/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -28,7 +28,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Continue to Step 2 button - fade",
-    "Links": "Untitled2.jpg",
+    "Links": "https://drive.google.com/file/d/1pDjPwmKMCkTMpAABRjPwyWl9AMKLZ73z/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -38,7 +38,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Confirm And Add Plan button - fade",
-    "Links": "Untitled3.jpg",
+    "Links": "https://drive.google.com/file/d/1gCKtrsoKik9nqUFqO9CF1uNqh4SWbG1R/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -48,7 +48,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Print / Share On WhatApp\" button fade on mouse pointer move-over after completing plan creation - popup\nhttps://app.nowpurchase.com/productionplan/plan/",
-    "Links": "Untitled4.jpg",
+    "Links": "https://drive.google.com/file/d/1KP6nHwBwI65wPd4iNdEoyqIZIstJyjxv/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -58,7 +58,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Print / Share On WhatApp\" button spelling should be WhatsApp\nhttps://app.nowpurchase.com/productionplan/plan/",
-    "Links": "Untitled5.jpg",
+    "Links": "https://drive.google.com/file/d/1MQsHtvRS6ka-82bbbPI-3XLiqsrZwBXc/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -68,7 +68,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "While generating pdf file - Print button - Error Not a valid JSON string",
-    "Links": "Untitled7.jpg",
+    "Links": "https://drive.google.com/file/d/1ZTBLOzHFbliD1YvH6MgUTzMw9kSToCvT/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -78,7 +78,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Popup - Print button and Share button - fade",
-    "Links": "Untitled6.jpg",
+    "Links": "https://drive.google.com/file/d/15XLLoRMQE-7dz--sY1YYF2OjYNolKsr-/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -88,7 +88,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Planned Date and Creation Date - format are not similar\nhttps://app.nowpurchase.com/productionplan/plan/",
-    "Links": "Untitled8.jpg",
+    "Links": "https://drive.google.com/file/d/1tGPTr77V3BoXonT5PmHCjHCULWkPKxE0/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -98,7 +98,7 @@ const REPORT_DATA = [
     "Modules": "Production Plan",
     "Sub-Modules": "Production Plan",
     "Observations": "Field : Required Liquid Metal Wt. (Fix decimal place ex- 930.5416666666666) \nhttps://app.nowpurchase.com/productionplan/plan/99",
-    "Links": "Untitled9.jpg",
+    "Links": "https://drive.google.com/file/d/15F_yy6sko87O5bEC0TzX6qmbS6GChcvA/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -108,7 +108,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Listing Page",
     "Observations": "Filter option show wrong count All plans vs multiple status",
-    "Links": "Untitled10.jpg",
+    "Links": "https://drive.google.com/file/d/1-pJU2E9CTOSjXstIdcQ9UhTU6Lzqpomy/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -118,7 +118,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Add Page",
     "Observations": "Logic recheck - while planing \"Planned Chargemix Wt.\" system calculate 90% of the \"Planned Liquid Metal Wt.\". It gives the incorrect picture of raw material to be consumed. Either we says that 10% scope for raw material addition/diluation, or fix the calculation to show 100% raw material to be consumed.",
-    "Links": "Untitled12.jpg",
+    "Links": "https://drive.google.com/file/d/1t-qeI-VOt-2p7wbBxS4P2Q19EckGwCBL/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -128,7 +128,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Add Page",
     "Observations": "“Grade name box size” is not fix, moving as per selected grade, so it should be have a defaulf fix size which should expand but do not squee below default\nsize.",
-    "Links": "Untitled11.jpg",
+    "Links": "https://drive.google.com/file/d/1zQbxww6EzM0OyaclrMTqSKmmjKgzU_Wn/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -138,7 +138,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Listing Page",
     "Observations": "If grade code is not available it should not show “/ -“, better to use “|” instead of “/”\nhttps://app.nowpurchase.com/productionplan",
-    "Links": "Untitled16.jpg",
+    "Links": "https://drive.google.com/file/d/1xRbIDb0VF_CyKkhXchfoLidQq7twxvnI/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -148,7 +148,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Add Page",
     "Observations": "Failed to create heat plan. Reason Identified: Tapping min max value should be between 600 to 1700. In this case max was 2000, so error occured but error remark correct remark is not show to customer.",
-    "Links": "Untitled13.jpg",
+    "Links": "https://drive.google.com/file/d/1e-9-OagVzZrYbE7tZzUZAYW8BLu0eAZy/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -158,7 +158,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan - Add Page",
     "Observations": "As for multiple customer they are many grades to choose, it will be better to provide casting type filter before grade selection. Also, repeated grade names in dropdown.",
-    "Links": "Untitled14.jpg",
+    "Links": "https://drive.google.com/file/d/1UfA8n2olj4IzW4cPk3v55z_m5CNHXh8x/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   },
@@ -168,7 +168,7 @@ const REPORT_DATA = [
     "Modules": "Heat Plan",
     "Sub-Modules": "Heat Plan",
     "Observations": "Every validation need to be identified and relevent error remark to be display to customer for clarity.",
-    "Links": "Untitled15.jpg",
+    "Links": "https://drive.google.com/file/d/1eni1zpFgRrVQ5uma6L1yHKaGafB5sV7H/view?usp=drive_link",
     "Status": "",
     "_month": "Feb 2026"
   }

@@ -30,13 +30,22 @@ def excel_to_json(filepath):
     ws = wb.active
     headers = [cell.value for cell in ws[1]]
     data = []
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if not any(v is not None for v in row):
+    for row_cells in ws.iter_rows(min_row=2): # Iterate over cell objects to get hyperlinks
+        # Check if the row is empty (all cells are None or empty strings)
+        if not any(cell.value is not None and str(cell.value).strip() != '' for cell in row_cells):
             continue
+
         row_dict = {}
-        for i, v in enumerate(row):
+        for i, cell in enumerate(row_cells):
             if i < len(headers) and headers[i]:
-                row_dict[headers[i]] = str(v).strip() if v is not None else ""
+                header_name = headers[i]
+                value = str(cell.value).strip() if cell.value is not None else ""
+
+                # If the header is "Links" and there's a hyperlink, use the hyperlink target
+                if header_name == "Links" and cell.hyperlink and cell.hyperlink.target:
+                    row_dict[header_name] = cell.hyperlink.target
+                else:
+                    row_dict[header_name] = value
         # Attach computed month label
         dr = row_dict.get("Date Range", "")
         row_dict["_month"] = parse_month_key(dr)
