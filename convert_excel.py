@@ -65,7 +65,7 @@ def classify_observation(obs: str):
     if any(k in t for k in perf):
         category = "Performance"
     elif any(re.search(k, t) for k in logic):
-        category = "Logical/Business Logic"
+        category = "Logical"
     elif any(re.search(k, t) for k in ux):
         category = "UX"
     elif any(re.search(k, t) for k in ui):
@@ -95,7 +95,7 @@ def classify_observation(obs: str):
     elif any(re.search(k, t) for k in s2):
         impact = "S2 – Major"
     elif any(re.search(k, t) for k in s4):
-        impact = "S4 – Low/Cosmetic"
+        impact = "S4 – Low"
     else:
         impact = "S3 – Minor"
 

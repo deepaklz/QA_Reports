@@ -6,101 +6,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="SaaS Testing Report Dashboard — Monthly QA observations across all modules." />
   <title>QA Testing Report Dashboard</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-  <!-- ═══ Top Navigation ══════════════════════════════════ -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+  <!-- ═══ Navbar ══════════════════════════════════════════ -->
+  <nav class="navbar">
     <div class="navbar-inner">
-      <a class="navbar-logo" href="#" aria-label="Dashboard home">
-        <div class="logo-badge">
-          <span class="material-icons-round">science</span>
-        </div>
+      <a class="navbar-logo" href="#">
+        <div class="logo-badge"><span class="material-icons-round">science</span></div>
         <span class="navbar-title">QA Report &nbsp;<span>/ Dashboard</span></span>
       </a>
       <div class="navbar-spacer"></div>
       <div class="navbar-chip">
-        <span class="material-icons-round">verified_user</span>
-        SaaS Testing
+        <span class="material-icons-round">verified_user</span>SaaS Testing
       </div>
     </div>
   </nav>
 
-  <!-- ═══ Month Tabs ═══════════════════════════════════════ -->
-  <div class="month-nav-wrap" role="navigation" aria-label="Month filter">
-    <div class="month-nav" id="month-tabs" role="tablist">
-      <!-- rendered by app.js -->
-    </div>
+  <!-- ═══ Month Tabs ══════════════════════════════════════ -->
+  <div class="month-nav-wrap">
+    <div class="month-nav" id="month-tabs" role="tablist"></div>
   </div>
 
-  <!-- ═══ Layout Shell (sidebar + main) ══════════════════ -->
+  <!-- ═══ Layout Shell ════════════════════════════════════ -->
   <div class="layout-shell">
 
-    <!-- ─── Left Sidebar ────────────────────────────────── -->
+    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">
-          <span class="material-icons-round">date_range</span>Date Range
-        </div>
-        <div id="sidebar-dates"></div>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">
-          <span class="material-icons-round">widgets</span>Modules
-        </div>
-        <div id="sidebar-modules"></div>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">
-          <span class="material-icons-round">label</span>Category
-        </div>
-        <div id="sidebar-categories"></div>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">
-          <span class="material-icons-round">bolt</span>Impact
-        </div>
-        <div id="sidebar-impacts"></div>
-      </div>
-
-      <div class="sidebar-section sidebar-review-section">
-        <button class="btn-overall-review" id="btn-overall-review">
-          <span class="material-icons-round">summarize</span>
-          Overall Review
-        </button>
-      </div>
-
+      <div id="sb-sect-dates" class="sb-card"></div>
+      <div id="sb-sect-modules" class="sb-card"></div>
+      <div id="sb-sect-categories" class="sb-card"></div>
+      <div id="sb-sect-impacts" class="sb-card"></div>
     </aside>
 
-    <!-- ─── Main Content ─────────────────────────────────── -->
-    <main class="main" id="main-content" role="main">
-      <div class="select-prompt">
-        <span class="material-icons-round">touch_app</span>
-        <p>Select a <strong>date range</strong> from the left panel to view the report.</p>
-      </div>
-    </main>
+    <!-- Main content -->
+    <main class="main" id="main-content"></main>
 
   </div>
-
-  <!-- ═══ Overall Review Panel ════════════════════════════ -->
-  <div id="review-panel" class="review-panel" style="display:none;"></div>
 
   <!-- ═══ Scripts ══════════════════════════════════════════ -->
   <script src="data.js"></script>
   <script src="app.js"></script>
-
 </body>
 
 </html>
