@@ -20,6 +20,8 @@ const REPORT_DATA = [
     "Observations": "Add new plan button - fade",
     "Links": "https://drive.google.com/file/d/1Uqzyab0fdchLw5rLqKZLYhOrXILxAY1X/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -30,6 +32,8 @@ const REPORT_DATA = [
     "Observations": "Continue to Step 2 button - fade",
     "Links": "https://drive.google.com/file/d/1pDjPwmKMCkTMpAABRjPwyWl9AMKLZ73z/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -40,6 +44,8 @@ const REPORT_DATA = [
     "Observations": "Confirm And Add Plan button - fade",
     "Links": "https://drive.google.com/file/d/1gCKtrsoKik9nqUFqO9CF1uNqh4SWbG1R/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -50,6 +56,8 @@ const REPORT_DATA = [
     "Observations": "Print / Share On WhatApp\" button fade on mouse pointer move-over after completing plan creation - popup\nhttps://app.nowpurchase.com/productionplan/plan/",
     "Links": "https://drive.google.com/file/d/1KP6nHwBwI65wPd4iNdEoyqIZIstJyjxv/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -60,6 +68,8 @@ const REPORT_DATA = [
     "Observations": "Print / Share On WhatApp\" button spelling should be WhatsApp\nhttps://app.nowpurchase.com/productionplan/plan/",
     "Links": "https://drive.google.com/file/d/1MQsHtvRS6ka-82bbbPI-3XLiqsrZwBXc/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -70,6 +80,8 @@ const REPORT_DATA = [
     "Observations": "While generating pdf file - Print button - Error Not a valid JSON string",
     "Links": "https://drive.google.com/file/d/1ZTBLOzHFbliD1YvH6MgUTzMw9kSToCvT/view?usp=drive_link",
     "Status": "",
+    "Error Category": "Functionality",
+    "Error Impact": "S2 – Major",
     "_month": "Feb 2026"
   },
   {
@@ -80,6 +92,8 @@ const REPORT_DATA = [
     "Observations": "Popup - Print button and Share button - fade",
     "Links": "https://drive.google.com/file/d/15XLLoRMQE-7dz--sY1YYF2OjYNolKsr-/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UI",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -90,6 +104,8 @@ const REPORT_DATA = [
     "Observations": "Planned Date and Creation Date - format are not similar\nhttps://app.nowpurchase.com/productionplan/plan/",
     "Links": "https://drive.google.com/file/d/1tGPTr77V3BoXonT5PmHCjHCULWkPKxE0/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UX",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -100,6 +116,8 @@ const REPORT_DATA = [
     "Observations": "Field : Required Liquid Metal Wt. (Fix decimal place ex- 930.5416666666666) \nhttps://app.nowpurchase.com/productionplan/plan/99",
     "Links": "https://drive.google.com/file/d/15F_yy6sko87O5bEC0TzX6qmbS6GChcvA/view?usp=drive_link",
     "Status": "",
+    "Error Category": "Logical/Business Logic",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -110,6 +128,8 @@ const REPORT_DATA = [
     "Observations": "Filter option show wrong count All plans vs multiple status",
     "Links": "https://drive.google.com/file/d/1-pJU2E9CTOSjXstIdcQ9UhTU6Lzqpomy/view?usp=drive_link",
     "Status": "",
+    "Error Category": "Logical/Business Logic",
+    "Error Impact": "S2 – Major",
     "_month": "Feb 2026"
   },
   {
@@ -120,6 +140,8 @@ const REPORT_DATA = [
     "Observations": "Logic recheck - while planing \"Planned Chargemix Wt.\" system calculate 90% of the \"Planned Liquid Metal Wt.\". It gives the incorrect picture of raw material to be consumed. Either we says that 10% scope for raw material addition/diluation, or fix the calculation to show 100% raw material to be consumed.",
     "Links": "https://drive.google.com/file/d/1t-qeI-VOt-2p7wbBxS4P2Q19EckGwCBL/view?usp=drive_link",
     "Status": "",
+    "Error Category": "Logical/Business Logic",
+    "Error Impact": "S2 – Major",
     "_month": "Feb 2026"
   },
   {
@@ -130,6 +152,8 @@ const REPORT_DATA = [
     "Observations": "“Grade name box size” is not fix, moving as per selected grade, so it should be have a defaulf fix size which should expand but do not squee below default\nsize.",
     "Links": "https://drive.google.com/file/d/1zQbxww6EzM0OyaclrMTqSKmmjKgzU_Wn/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UX",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -140,6 +164,8 @@ const REPORT_DATA = [
     "Observations": "If grade code is not available it should not show “/ -“, better to use “|” instead of “/”\nhttps://app.nowpurchase.com/productionplan",
     "Links": "https://drive.google.com/file/d/1xRbIDb0VF_CyKkhXchfoLidQq7twxvnI/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UX",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -150,6 +176,8 @@ const REPORT_DATA = [
     "Observations": "Failed to create heat plan. Reason Identified: Tapping min max value should be between 600 to 1700. In this case max was 2000, so error occured but error remark correct remark is not show to customer.",
     "Links": "https://drive.google.com/file/d/1e-9-OagVzZrYbE7tZzUZAYW8BLu0eAZy/view?usp=drive_link",
     "Status": "",
+    "Error Category": "Logical/Business Logic",
+    "Error Impact": "S2 – Major",
     "_month": "Feb 2026"
   },
   {
@@ -160,6 +188,8 @@ const REPORT_DATA = [
     "Observations": "As for multiple customer they are many grades to choose, it will be better to provide casting type filter before grade selection. Also, repeated grade names in dropdown.",
     "Links": "https://drive.google.com/file/d/1UfA8n2olj4IzW4cPk3v55z_m5CNHXh8x/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UX",
+    "Error Impact": "S4 – Low/Cosmetic",
     "_month": "Feb 2026"
   },
   {
@@ -170,6 +200,8 @@ const REPORT_DATA = [
     "Observations": "Every validation need to be identified and relevent error remark to be display to customer for clarity.",
     "Links": "https://drive.google.com/file/d/1eni1zpFgRrVQ5uma6L1yHKaGafB5sV7H/view?usp=drive_link",
     "Status": "",
+    "Error Category": "UX",
+    "Error Impact": "S3 – Minor",
     "_month": "Feb 2026"
   }
 ];

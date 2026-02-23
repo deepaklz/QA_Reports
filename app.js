@@ -200,7 +200,7 @@ function renderTable(rows) {
 
   if (filtered.length === 0) {
     tableWrap.innerHTML = `
-      <tr><td colspan="7" style="text-align:center;padding:48px;color:var(--neutral-600)">
+      <tr><td colspan="9" style="text-align:center;padding:48px;color:var(--neutral-600)">
         <span class="material-icons-round" style="font-size:40px;color:var(--neutral-400);display:block;margin-bottom:10px">search_off</span>
         No observations match your filter.
       </td></tr>`;
@@ -210,8 +210,12 @@ function renderTable(rows) {
   tableWrap.innerHTML = filtered.map((r, idx) => {
     const modCls = getModuleClass(r["Modules"]);
     const statusCls = getStatusClass(r["Status"]);
+    const catCls = getCategoryClass(r["Error Category"]);
+    const impCls = getImpactClass(r["Error Impact"]);
     const statusTxt = r["Status"] || "Open";
     const obs = (r["Observations"] || "").replace(/\n/g, "<br>");
+    const cat = r["Error Category"] || "—";
+    const imp = r["Error Impact"] || "—";
 
     const linkHtml = r["Links"]
       ? `<a href="${r["Links"]}" target="_blank" rel="noopener noreferrer"><span class="material-icons-round">open_in_new</span>View Screenshot</a>`
@@ -224,10 +228,30 @@ function renderTable(rows) {
         <td><span class="module-badge ${modCls}">${r["Modules"] || ""}</span></td>
         <td style="font-size:0.82rem;color:var(--neutral-700)">${r["Sub-Modules"] || ""}</td>
         <td class="obs-cell"><div class="obs-truncate">${obs}</div></td>
+        <td><span class="cat-badge ${catCls}">${cat}</span></td>
+        <td><span class="imp-badge ${impCls}">${imp}</span></td>
         <td class="link-cell">${linkHtml}</td>
         <td><span class="status-badge ${statusCls}">${statusTxt}</span></td>
       </tr>`;
   }).join("");
+}
+
+function getCategoryClass(cat) {
+  const c = (cat || "").toLowerCase();
+  if (c.includes("ui")) return "cat-ui";
+  if (c.includes("ux")) return "cat-ux";
+  if (c.includes("logical") || c.includes("business")) return "cat-logic";
+  if (c.includes("performance")) return "cat-perf";
+  return "cat-func";  // Functionality
+}
+
+function getImpactClass(imp) {
+  const i = (imp || "").toLowerCase();
+  if (i.startsWith("s1")) return "imp-s1";
+  if (i.startsWith("s2")) return "imp-s2";
+  if (i.startsWith("s3")) return "imp-s3";
+  if (i.startsWith("s4")) return "imp-s4";
+  return "imp-s3";
 }
 
 function getStatusClass(status) {
@@ -274,24 +298,26 @@ function renderContentPanel() {
         </div>
         <span class="table-result-count" id="result-count"></span>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Date Range</th>
-              <th>Module</th>
-              <th>Sub-Module</th>
-              <th>Observation</th>
-              <th>Link</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date Range</th>
+            <th>Module</th>
+            <th>Sub-Module</th>
+            <th>Observation</th>
+            <th>Category</th>
+            <th>Impact</th>
+            <th>Link</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
     </div>
-  `;
+    </div >
+    `;
 
   // Wire up search
   document.getElementById("search-input").addEventListener("input", e => {
@@ -311,15 +337,15 @@ async function generateInsights() {
 
   if (!period) {
     panel.style.display = "block";
-    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">info</span> Please select a date range first.</div>`;
+    panel.innerHTML = `< div class="insight-error" > <span class="material-icons-round">info</span> Please select a date range first.</div > `;
     return;
   }
 
   // Loading state
   btn.disabled = true;
-  btn.innerHTML = `<span class="material-icons-round spin">progress_activity</span> Loading…`;
+  btn.innerHTML = `< span class="material-icons-round spin" > progress_activity</span > Loading…`;
   panel.style.display = "block";
-  panel.innerHTML = `<div class="insight-loading"><span class="material-icons-round spin">progress_activity</span> Loading insights…</div>`;
+  panel.innerHTML = `< div class="insight-loading" > <span class="material-icons-round spin">progress_activity</span> Loading insights…</div > `;
 
   try {
     const res = await fetch("insights.json");
@@ -327,15 +353,15 @@ async function generateInsights() {
     // insights.json not found — guide the user
     if (res.status === 404) {
       panel.innerHTML = `
-        <div class="insight-error">
-          <span class="material-icons-round">cloud_off</span>
-          No insights file found. Run <code>python generate_insights.py</code> locally,
-          then push <code>insights.json</code> to GitHub.
-        </div>`;
+    < div class="insight-error" >
+      <span class="material-icons-round">cloud_off</span>
+          No insights file found.Run < code > python generate_insights.py</code > locally,
+    then push < code > insights.json</code > to GitHub.
+        </div > `;
       return;
     }
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} `);
 
     const data = await res.json();
 
@@ -346,9 +372,9 @@ async function generateInsights() {
       // List available periods to help the user
       const available = Object.keys(data?.periods || {}).join(", ") || "none";
       panel.innerHTML = `
-        <div class="insight-error">
-          <span class="material-icons-round">search_off</span>
-          No insight found for <strong>"${period}"</strong>.<br>
+    < div class="insight-error" >
+      <span class="material-icons-round">search_off</span>
+          No insight found for <strong>"${period}"</strong>.< br >
           <small>Available: ${available}</small><br><br>
           Run <code>python generate_insights.py</code> and push the updated <code>insights.json</code>.
         </div>`;
