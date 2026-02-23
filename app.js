@@ -107,13 +107,14 @@ function selectMonth(key) {
   activeCategoryFilter = null;
   activeImpactFilter = null;
   searchQuery = "";
-  activeContentTab = key === "all" ? "overall-all" : "observations";
+  activeContentTab = key === "all" ? "overall-all" : "overall-month";
   renderAll();
 }
 function selectDateRange(dr) {
   activeDateRange = (activeDateRange === dr) ? null : dr;
   activeModuleFilter = null;
   searchQuery = "";
+  activeContentTab = activeDateRange ? "observations" : "overall-month";
   renderAll();
 }
 function selectModule(m) { activeModuleFilter = m; renderAll(); }
@@ -319,8 +320,9 @@ function buildOverallHTML(rows) {
                   <span class="review-period-tag">${r["Date Range"] || ""}</span>
                   <span class="review-obs-text">${r["Observations"] || ""}</span>
                   <div class="review-item-badges">
-                    <span class="cat-badge ${getCategoryClass(r["Error Category"])}">${r["Error Category"] || "—"}</span>
-                    <span class="imp-badge ${getImpactClass(r["Error Impact"])}">${r["Error Impact"] || "—"}</span>
+                    <span class="cat-badge ${getCategoryClass(r["Error Category"])}">${r["Error Category"] || "\u2014"}</span>
+                    <span class="imp-badge ${getImpactClass(r["Error Impact"])}">${r["Error Impact"] || "\u2014"}</span>
+                    ${r["Links"] ? `<a class="review-link" href="${r["Links"]}" target="_blank" rel="noopener"><span class="material-icons-round">open_in_new</span>Screenshot</a>` : ""}
                   </div>
                 </div>
               `).join("")}
@@ -347,18 +349,10 @@ function renderContentPanel() {
     return;
   }
 
-  /* ── Prompt: no date range yet ── */
-  if (!activeDateRange) {
-    main.innerHTML = `
-      <div class="select-prompt">
-        <span class="material-icons-round">touch_app</span>
-        <p>Select a <strong>date range</strong> from the left panel to view observations.</p>
-      </div>`;
-    return;
-  }
-
   /* ── Month view with tabs ── */
-  const drRows = rowsForDateRange(activeDateRange);
+  // Observations source: selected range, or all month rows if no range
+  const monthRows = rowsForMonth(activeMonth);
+  const drRows = activeDateRange ? rowsForDateRange(activeDateRange) : monthRows;
   const filtered = applyFilters(drRows);
   const monthLabel = MONTHS.find(m => m.key === activeMonth)?.label ?? activeMonth;
   const filterBadge = [
@@ -366,6 +360,7 @@ function renderContentPanel() {
     activeCategoryFilter ? activeCategoryFilter : null,
     activeImpactFilter ? activeImpactFilter : null,
   ].filter(Boolean).join(" · ");
+  const rangeLabel = activeDateRange ? activeDateRange : "All Data";
 
   const isObs = activeContentTab === "observations";
   const isOverall = activeContentTab === "overall-month";
@@ -374,6 +369,7 @@ function renderContentPanel() {
     <div class="content-tabs">
       <button class="content-tab ${isObs ? "active" : ""}" onclick="switchContentTab('observations')">
         <span class="material-icons-round">table_view</span>Observations
+        <span class="tab-range-label">${rangeLabel}</span>
       </button>
       <button class="content-tab ${isOverall ? "active" : ""}" onclick="switchContentTab('overall-month')">
         <span class="material-icons-round">summarize</span>Overall – ${monthLabel}
@@ -403,9 +399,9 @@ function renderContentPanel() {
       </div>
     </div>
 
-    <!-- Overall month panel -->
+    <!-- Overall month panel: always shows FULL MONTH data -->
     <div id="panel-overall" ${isOverall ? "" : 'style="display:none"'}>
-      ${buildOverallHTML(applyFilters(drRows))}
+      ${buildOverallHTML(applyFilters(monthRows))}
     </div>
   `;
 

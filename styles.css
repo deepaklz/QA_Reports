@@ -890,6 +890,45 @@ tbody tr:hover {
     text-align: center;
 }
 
+.review-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.66rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    background: var(--primary-light);
+    border-radius: 100px;
+    white-space: nowrap;
+    transition: opacity var(--transition);
+}
+
+.review-link:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+.review-link .material-icons-round {
+    font-size: 11px;
+}
+
+.tab-range-label {
+    font-size: 0.66rem;
+    font-weight: 400;
+    color: var(--neutral-600);
+    background: var(--neutral-100);
+    padding: 1px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+.content-tab.active .tab-range-label {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
 /* ─── Empty / Prompt States ──────────────────────── */
 .select-prompt {
     text-align: center;
