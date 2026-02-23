@@ -1,78 +1,135 @@
 /**
- * app.js — Testing Report Dashboard
- * All logic for month tabs, sub-menus, module tiles, and data table.
- * Data comes from data.js (REPORT_DATA / REPORT_HEADERS).
+ * app.js — QA Testing Report Dashboard
+ * Sidebar layout: Modules, Category, Impact filters.
+ * Overall Review: client-side recurring-bug grouping, no API.
  */
 
-/* ─── Configuration ─────────────────────────── */
+/* ─── Configuration ──────────────────────────────────────── */
 const MONTHS = [
-  { key: "Feb 2026", label: "February 2026", short: "Feb 2026" },
-  { key: "Mar 2026", label: "March 2026", short: "Mar 2026" },
-  { key: "Apr 2026", label: "April 2026", short: "Apr 2026" },
-  { key: "May 2026", label: "May 2026", short: "May 2026" },
-  { key: "Jun 2026", label: "June 2026", short: "Jun 2026" },
+  { key: "Feb 2026", label: "February 2026" },
+  { key: "Mar 2026", label: "March 2026" },
+  { key: "Apr 2026", label: "April 2026" },
+  { key: "May 2026", label: "May 2026" },
+  { key: "Jun 2026", label: "June 2026" },
 ];
 
-// Material icon per module (keyword match)
 const MODULE_ICONS = {
-  "production plan": "factory",
-  "heat plan": "local_fire_department",
+  "production": "factory",
+  "heat": "local_fire_department",
   "inventory": "inventory_2",
   "purchase": "shopping_cart",
   "quality": "verified",
   "default": "widgets",
 };
 
-// Colour variant per module
-function getModuleClass(moduleName) {
-  const m = (moduleName || "").toLowerCase();
-  if (m.includes("production")) return "mod-production";
-  if (m.includes("heat")) return "mod-heat";
-  return "mod-default";
-}
+const ALL_CATEGORIES = ["UI", "UX", "Functionality", "Logical/Business Logic", "Performance"];
 
-function getModuleIcon(moduleName) {
-  const m = (moduleName || "").toLowerCase();
-  for (const [key, icon] of Object.entries(MODULE_ICONS)) {
-    if (m.includes(key.split(" ")[0])) return icon;
-  }
-  return MODULE_ICONS.default;
-}
+const ALL_IMPACTS = [
+  { key: "S1", label: "S1 – Critical" },
+  { key: "S2", label: "S2 – Major" },
+  { key: "S3", label: "S3 – Minor" },
+  { key: "S4", label: "S4 – Cosmetic" },
+];
 
-/* ─── State ─────────────────────────────────── */
+/* ─── State ──────────────────────────────────────────────── */
 let activeMonth = MONTHS[0].key;
 let activeDateRange = null;
-let activeModule = null;
+let activeModuleFilter = null;
+let activeCategoryFilter = null;
+let activeImpactFilter = null;
 let searchQuery = "";
 
-/* ─── Helpers ─────────────────────────────────*/
+/* ─── Pure Helpers ───────────────────────────────────────── */
 function rowsForMonth(monthKey) {
   return (REPORT_DATA || []).filter(r => r._month === monthKey);
 }
-
 function dateRangesForMonth(monthKey) {
-  const rows = rowsForMonth(monthKey);
-  return [...new Set(rows.map(r => r["Date Range"]))].sort();
+  return [...new Set(rowsForMonth(monthKey).map(r => r["Date Range"]))].filter(Boolean).sort();
 }
-
 function rowsForDateRange(dr) {
   return (REPORT_DATA || []).filter(r => r["Date Range"] === dr);
 }
-
 function uniqueModules(rows) {
   return [...new Set(rows.map(r => r["Modules"]))].filter(Boolean);
 }
 
-/* ─── Render: Month Tabs ─────────────────────── */
+function getModuleClass(name) {
+  const n = (name || "").toLowerCase();
+  if (n.includes("production")) return "mod-production";
+  if (n.includes("heat")) return "mod-heat";
+  return "mod-default";
+}
+function getModuleIcon(name) {
+  const n = (name || "").toLowerCase();
+  for (const [k, icon] of Object.entries(MODULE_ICONS)) {
+    if (n.includes(k)) return icon;
+  }
+  return MODULE_ICONS.default;
+}
+function getStatusClass(s) {
+  const v = (s || "").toLowerCase();
+  if (v === "fixed" || v === "resolved" || v === "closed") return "status-fixed";
+  if (v === "in review" || v === "review") return "status-review";
+  return "status-open";
+}
+function getCategoryClass(cat) {
+  const c = (cat || "").toLowerCase();
+  if (c.includes("ux")) return "cat-ux";
+  if (c.includes("ui")) return "cat-ui";
+  if (c.includes("logical") || c.includes("business")) return "cat-logic";
+  if (c.includes("performance")) return "cat-perf";
+  return "cat-func";
+}
+function getImpactClass(imp) {
+  const i = (imp || "").toLowerCase();
+  if (i.startsWith("s1")) return "imp-s1";
+  if (i.startsWith("s2")) return "imp-s2";
+  if (i.startsWith("s3")) return "imp-s3";
+  return "imp-s4";
+}
+
+/* ─── Filter Pipeline ───────────────────────────────────── */
+function applyFilters(rows) {
+  return rows.filter(r => {
+    if (activeModuleFilter && r["Modules"] !== activeModuleFilter) return false;
+    if (activeCategoryFilter && r["Error Category"] !== activeCategoryFilter) return false;
+    if (activeImpactFilter && !(r["Error Impact"] || "").startsWith(activeImpactFilter)) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return Object.values(r).some(v => String(v).toLowerCase().includes(q));
+    }
+    return true;
+  });
+}
+
+/* ─── Selection Handlers ────────────────────────────────── */
+function selectDateRange(dr) {
+  activeDateRange = (activeDateRange === dr) ? null : dr;
+  activeModuleFilter = null;
+  searchQuery = "";
+  renderAll();
+}
+function selectModule(m) {
+  activeModuleFilter = m;
+  renderAll();
+}
+function selectCategory(c) {
+  activeCategoryFilter = c;
+  renderAll();
+}
+function selectImpact(i) {
+  activeImpactFilter = i;
+  renderAll();
+}
+
+/* ─── Render: Month Tabs ────────────────────────────────── */
 function renderMonthTabs() {
   const container = document.getElementById("month-tabs");
   container.innerHTML = "";
-
   MONTHS.forEach(m => {
     const count = rowsForMonth(m.key).length;
     const btn = document.createElement("button");
     btn.className = "month-tab" + (m.key === activeMonth ? " active" : "");
-    btn.setAttribute("data-month", m.key);
     btn.innerHTML = `
       <span class="material-icons-round">calendar_month</span>
       ${m.label}
@@ -81,119 +138,100 @@ function renderMonthTabs() {
     btn.addEventListener("click", () => {
       activeMonth = m.key;
       activeDateRange = null;
-      activeModule = null;
+      activeModuleFilter = null;
+      activeCategoryFilter = null;
+      activeImpactFilter = null;
       searchQuery = "";
+      document.getElementById("review-panel").style.display = "none";
       renderAll();
     });
     container.appendChild(btn);
   });
 }
 
-/* ─── Render: Sub-menu ───────────────────────── */
-function renderSubmenu() {
-  const wrap = document.getElementById("submenu");
-  wrap.innerHTML = "";
+/* ─── Render: Sidebar ───────────────────────────────────── */
+function renderSidebar() {
+  renderSidebarDates();
+  renderSidebarModules();
+  renderSidebarCategories();
+  renderSidebarImpacts();
+}
 
+function renderSidebarDates() {
+  const el = document.getElementById("sidebar-dates");
   const ranges = dateRangesForMonth(activeMonth);
-
-  if (ranges.length === 0) {
-    wrap.innerHTML = `
-      <span class="submenu-empty">
-        <span class="material-icons-round">event_busy</span>
-        No reports available for this period yet
-      </span>`;
+  if (!ranges.length) {
+    el.innerHTML = `<div class="sidebar-empty">No data for this month yet</div>`;
     return;
   }
-
-  const label = document.createElement("span");
-  label.className = "submenu-label";
-  label.innerHTML = `<span class="material-icons-round" style="font-size:14px;vertical-align:middle">subdirectory_arrow_right</span> Period`;
-  wrap.appendChild(label);
-
-  ranges.forEach(dr => {
-    const pill = document.createElement("button");
-    pill.className = "submenu-pill" + (dr === activeDateRange ? " active" : "");
-    pill.innerHTML = `<span class="material-icons-round">date_range</span>${dr}`;
-    pill.addEventListener("click", () => {
-      activeDateRange = dr;
-      activeModule = null;
-      searchQuery = "";
-      renderAll();
-    });
-    wrap.appendChild(pill);
-  });
+  el.innerHTML = ranges.map(dr => `
+    <button class="sidebar-pill date-pill ${activeDateRange === dr ? "active" : ""}"
+            onclick="selectDateRange('${dr.replace(/'/g, "\\'")}')">
+      <span class="material-icons-round">schedule</span>
+      ${dr}
+    </button>
+  `).join("");
 }
 
-/* ─── Render: Stats Bar ──────────────────────── */
-function renderStats(rows) {
-  const total = rows.length;
-  const modules = uniqueModules(rows).length;
-  const withLinks = rows.filter(r => r.Links && r.Links.trim()).length;
-  const statusSet = [...new Set(rows.map(r => r.Status).filter(Boolean))].length;
-
-  document.getElementById("stat-total").textContent = total;
-  document.getElementById("stat-modules").textContent = modules;
-  document.getElementById("stat-links").textContent = withLinks;
-  document.getElementById("stat-status").textContent = statusSet || "—";
-}
-
-/* ─── Render: Module Tiles ───────────────────── */
-function renderTiles(rows) {
-  const grid = document.getElementById("tiles-grid");
-  const mods = uniqueModules(rows);
-
-  grid.innerHTML = "";
-
-  if (mods.length === 0) {
-    grid.innerHTML = `<p style="color:var(--neutral-600);font-size:.85rem">No modules found.</p>`;
+function renderSidebarModules() {
+  const el = document.getElementById("sidebar-modules");
+  const base = activeDateRange ? rowsForDateRange(activeDateRange) : rowsForMonth(activeMonth);
+  const mods = uniqueModules(base);
+  if (!mods.length) {
+    el.innerHTML = `<div class="sidebar-empty">—</div>`;
     return;
   }
-
-  mods.forEach(mod => {
-    const modRows = rows.filter(r => r["Modules"] === mod);
-    const icon = getModuleIcon(mod);
-    const cls = getModuleClass(mod);
-
-    const tile = document.createElement("div");
-    tile.className = "tile" + (mod === activeModule ? " active" : "");
-    tile.innerHTML = `
-      <div class="tile-icon">
-        <span class="material-icons-round">${icon}</span>
-      </div>
-      <div class="tile-text">
-        <div class="tile-name">${mod}</div>
-        <div class="tile-count">
-          <span class="material-icons-round">bug_report</span>
-          ${modRows.length} observation${modRows.length !== 1 ? "s" : ""}
-        </div>
-      </div>`;
-
-    tile.addEventListener("click", () => {
-      activeModule = (activeModule === mod) ? null : mod;
-      renderAll();
-    });
-
-    grid.appendChild(tile);
+  const html = [`<button class="sidebar-pill ${!activeModuleFilter ? "active" : ""}" onclick="selectModule(null)">All</button>`];
+  mods.forEach(m => {
+    html.push(`
+      <button class="sidebar-pill ${getModuleClass(m)} ${activeModuleFilter === m ? "active" : ""}"
+              onclick="selectModule('${m.replace(/'/g, "\\'")}')">
+        <span class="material-icons-round">${getModuleIcon(m)}</span>
+        ${m}
+      </button>
+    `);
   });
+  el.innerHTML = html.join("");
 }
 
-/* ─── Render: Data Table ─────────────────────── */
+function renderSidebarCategories() {
+  const el = document.getElementById("sidebar-categories");
+  const html = [`<button class="sidebar-pill ${!activeCategoryFilter ? "active" : ""}" onclick="selectCategory(null)">All</button>`];
+  ALL_CATEGORIES.forEach(c => {
+    html.push(`
+      <button class="sidebar-pill ${getCategoryClass(c)} ${activeCategoryFilter === c ? "active" : ""}"
+              onclick="selectCategory('${c}')">
+        ${c}
+      </button>
+    `);
+  });
+  el.innerHTML = html.join("");
+}
+
+function renderSidebarImpacts() {
+  const el = document.getElementById("sidebar-impacts");
+  const html = [`<button class="sidebar-pill ${!activeImpactFilter ? "active" : ""}" onclick="selectImpact(null)">All</button>`];
+  ALL_IMPACTS.forEach(({ key, label }) => {
+    html.push(`
+      <button class="sidebar-pill ${getImpactClass(key + " ")} ${activeImpactFilter === key ? "active" : ""}"
+              onclick="selectImpact('${key}')">
+        ${label}
+      </button>
+    `);
+  });
+  el.innerHTML = html.join("");
+}
+
+/* ─── Render: Table ─────────────────────────────────────── */
 function renderTable(rows) {
+  const content = document.getElementById("main-content");
   const tableWrap = document.getElementById("table-body");
   const resultCount = document.getElementById("result-count");
 
-  // Apply module filter
   let filtered = rows;
-  if (activeModule) {
-    filtered = filtered.filter(r => r["Modules"] === activeModule);
-  }
-
-  // Apply search
-  if (searchQuery.trim()) {
-    const q = searchQuery.trim().toLowerCase();
-    filtered = filtered.filter(r =>
-      Object.values(r).some(v => String(v).toLowerCase().includes(q))
-    );
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q)));
   }
 
   resultCount.textContent = `${filtered.length} result${filtered.length !== 1 ? "s" : ""}`;
@@ -208,88 +246,55 @@ function renderTable(rows) {
   }
 
   tableWrap.innerHTML = filtered.map((r, idx) => {
-    const modCls = getModuleClass(r["Modules"]);
-    const statusCls = getStatusClass(r["Status"]);
-    const catCls = getCategoryClass(r["Error Category"]);
-    const impCls = getImpactClass(r["Error Impact"]);
-    const statusTxt = r["Status"] || "Open";
-    const obs = (r["Observations"] || "").replace(/\n/g, "<br>");
-    const cat = r["Error Category"] || "—";
-    const imp = r["Error Impact"] || "—";
-
     const linkHtml = r["Links"]
-      ? `<a href="${r["Links"]}" target="_blank" rel="noopener noreferrer"><span class="material-icons-round">open_in_new</span>View Screenshot</a>`
-      : `<span style="color:var(--neutral-400);font-size:0.78rem">—</span>`;
-
+      ? `<a href="${r["Links"]}" target="_blank" rel="noopener noreferrer">
+           <span class="material-icons-round">open_in_new</span>Screenshot
+         </a>`
+      : `<span class="no-val">—</span>`;
     return `
       <tr>
         <td class="sn-cell">${r["Sn"] || idx + 1}</td>
-        <td style="white-space:nowrap;font-size:0.8rem">${r["Date Range"] || ""}</td>
-        <td><span class="module-badge ${modCls}">${r["Modules"] || ""}</span></td>
-        <td style="font-size:0.82rem;color:var(--neutral-700)">${r["Sub-Modules"] || ""}</td>
-        <td class="obs-cell"><div class="obs-truncate">${obs}</div></td>
-        <td><span class="cat-badge ${catCls}">${cat}</span></td>
-        <td><span class="imp-badge ${impCls}">${imp}</span></td>
+        <td class="nowrap">${r["Date Range"] || ""}</td>
+        <td><span class="module-badge ${getModuleClass(r["Modules"])}">${r["Modules"] || ""}</span></td>
+        <td>${r["Sub-Modules"] || ""}</td>
+        <td class="obs-cell"><div class="obs-truncate">${(r["Observations"] || "").replace(/\n/g, "<br>")}</div></td>
+        <td><span class="cat-badge ${getCategoryClass(r["Error Category"])}">${r["Error Category"] || "—"}</span></td>
+        <td><span class="imp-badge ${getImpactClass(r["Error Impact"])}">${r["Error Impact"] || "—"}</span></td>
         <td class="link-cell">${linkHtml}</td>
-        <td><span class="status-badge ${statusCls}">${statusTxt}</span></td>
+        <td><span class="status-badge ${getStatusClass(r["Status"])}">${r["Status"] || "Open"}</span></td>
       </tr>`;
   }).join("");
 }
 
-function getCategoryClass(cat) {
-  const c = (cat || "").toLowerCase();
-  if (c.includes("ui")) return "cat-ui";
-  if (c.includes("ux")) return "cat-ux";
-  if (c.includes("logical") || c.includes("business")) return "cat-logic";
-  if (c.includes("performance")) return "cat-perf";
-  return "cat-func";  // Functionality
-}
-
-function getImpactClass(imp) {
-  const i = (imp || "").toLowerCase();
-  if (i.startsWith("s1")) return "imp-s1";
-  if (i.startsWith("s2")) return "imp-s2";
-  if (i.startsWith("s3")) return "imp-s3";
-  if (i.startsWith("s4")) return "imp-s4";
-  return "imp-s3";
-}
-
-function getStatusClass(status) {
-  const s = (status || "").toLowerCase();
-  if (s === "fixed" || s === "resolved" || s === "closed") return "status-fixed";
-  if (s === "in review" || s === "review") return "status-review";
-  if (!s || s === "open" || s === "") return "status-open";
-  return "status-default";
-}
-
-/* ─── Render: Content Panel ──────────────────── */
+/* ─── Render: Content Panel ─────────────────────────────── */
 function renderContentPanel() {
-  const mainContent = document.getElementById("main-content");
+  const main = document.getElementById("main-content");
 
   if (!activeDateRange) {
-    // Show a "select a period" prompt
-    mainContent.innerHTML = `
+    main.innerHTML = `
       <div class="select-prompt">
         <span class="material-icons-round">touch_app</span>
-        <p>Select a <strong>date range</strong> from the bar above to view the report.</p>
+        <p>Select a <strong>date range</strong> from the left panel to view the report.</p>
       </div>`;
     return;
   }
 
-  const rows = rowsForDateRange(activeDateRange);
+  let rows = applyFilters(rowsForDateRange(activeDateRange));
 
-  mainContent.innerHTML = `
-    <!-- Modules Tiles -->
-    <div class="tiles-section">
-      <div class="tiles-grid" id="tiles-grid"></div>
-    </div>
+  const activeMonthLabel = MONTHS.find(m => m.key === activeMonth)?.label ?? activeMonth;
+  const filterDesc = [
+    activeModuleFilter ? `Module: ${activeModuleFilter}` : null,
+    activeCategoryFilter ? `Category: ${activeCategoryFilter}` : null,
+    activeImpactFilter ? `Impact: ${activeImpactFilter}` : null,
+  ].filter(Boolean).join(" · ");
 
-    <!-- Data Table -->
+  main.innerHTML = `
+    <!-- Table section -->
     <div class="table-section">
       <div class="section-heading">
         <span class="material-icons-round" style="color:var(--primary)">table_view</span>
         <h2>Observations</h2>
-        ${activeModule ? `<span class="badge">${activeModule}</span>` : ""}
+        ${filterDesc ? `<span class="badge">${filterDesc}</span>` : ""}
       </div>
       <div class="table-toolbar">
         <div class="table-search">
@@ -298,129 +303,124 @@ function renderContentPanel() {
         </div>
         <span class="table-result-count" id="result-count"></span>
       </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Date Range</th>
-            <th>Module</th>
-            <th>Sub-Module</th>
-            <th>Observation</th>
-            <th>Category</th>
-            <th>Impact</th>
-            <th>Link</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date Range</th>
+              <th>Module</th>
+              <th>Sub-Module</th>
+              <th>Observation</th>
+              <th>Category</th>
+              <th>Impact</th>
+              <th>Link</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
     </div>
-    </div >
-    `;
+  `;
 
-  // Wire up search
+  // Wire search
   document.getElementById("search-input").addEventListener("input", e => {
-    searchQuery = e.target.value;
-    renderTable(rows);
+    searchQuery = e.target.value.trim();
+    renderTable(applyFilters(rowsForDateRange(activeDateRange)));
   });
 
-  renderTiles(rows);
   renderTable(rows);
 }
 
-/* ─── Show Insights (reads pre-generated insights.json) ── */
-async function generateInsights() {
-  const btn = document.getElementById("btn-insights");
-  const panel = document.getElementById("insights-panel");
-  const period = activeDateRange || activeMonth;
+/* ─── Render: Overall Review ────────────────────────────── */
+function renderOverallReview() {
+  const panel = document.getElementById("review-panel");
 
-  if (!period) {
-    panel.style.display = "block";
-    panel.innerHTML = `< div class="insight-error" > <span class="material-icons-round">info</span> Please select a date range first.</div > `;
+  // Toggle
+  if (panel.style.display !== "none") {
+    panel.style.display = "none";
     return;
   }
 
-  // Loading state
-  btn.disabled = true;
-  btn.innerHTML = `< span class="material-icons-round spin" > progress_activity</span > Loading…`;
-  panel.style.display = "block";
-  panel.innerHTML = `< div class="insight-loading" > <span class="material-icons-round spin">progress_activity</span> Loading insights…</div > `;
-
-  try {
-    const res = await fetch("insights.json");
-
-    // insights.json not found — guide the user
-    if (res.status === 404) {
-      panel.innerHTML = `
-    < div class="insight-error" >
-      <span class="material-icons-round">cloud_off</span>
-          No insights file found.Run < code > python generate_insights.py</code > locally,
-    then push < code > insights.json</code > to GitHub.
-        </div > `;
-      return;
-    }
-
-    if (!res.ok) throw new Error(`HTTP ${res.status} `);
-
-    const data = await res.json();
-
-    // Find the insight matching the current selected period
-    const insight = data?.periods?.[period];
-
-    if (!insight) {
-      // List available periods to help the user
-      const available = Object.keys(data?.periods || {}).join(", ") || "none";
-      panel.innerHTML = `
-    < div class="insight-error" >
-      <span class="material-icons-round">search_off</span>
-          No insight found for <strong>"${period}"</strong>.< br >
-          <small>Available: ${available}</small><br><br>
-          Run <code>python generate_insights.py</code> and push the updated <code>insights.json</code>.
-        </div>`;
-      return;
-    }
-
-    if (insight.error) {
-      throw new Error(insight.error);
-    }
-
-    // Render markdown-like text
-    const html = (insight.text || "")
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/^###\s(.+)$/gm, "<h4>$1</h4>")
-      .replace(/^##\s(.+)$/gm, "<h3>$1</h3>")
-      .replace(/^#\s(.+)$/gm, "<h2>$1</h2>")
-      .replace(/\n{2,}/g, "</p><p>")
-      .replace(/\n/g, "<br>");
-
-    const generated = data.generated_at ? `Generated ${data.generated_at}` : "";
-
-    panel.innerHTML = `
-      <div class="insight-header">
-        <span class="material-icons-round">auto_awesome</span>
-        <strong>AI Insights</strong>
-        <span style="font-size:0.75rem;color:var(--neutral-600);margin-left:auto">${generated} · ${period}</span>
-        <button class="insight-close" onclick="document.getElementById('insights-panel').style.display='none'">
-          <span class="material-icons-round">close</span>
-        </button>
-      </div>
-      <div class="insight-body"><p>${html}</p></div>
-    `;
-
-  } catch (e) {
-    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">error_outline</span> ${e.message}</div>`;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<span class="material-icons-round">auto_awesome</span> View Insights`;
+  const rows = rowsForMonth(activeMonth);
+  if (!rows.length) {
+    panel.innerHTML = `<div class="review-error">No data for ${activeMonth} yet.</div>`;
+    panel.style.display = "block";
+    return;
   }
+
+  // Group by Module + Sub-Module
+  const groups = {};
+  rows.forEach(r => {
+    const mod = r["Modules"] || "Unknown";
+    const subMod = r["Sub-Modules"] || "General";
+    const key = `${mod}::${subMod}`;
+    if (!groups[key]) groups[key] = { mod, subMod, items: [] };
+    groups[key].items.push(r);
+  });
+
+  // Sort: recurring first, then by count desc
+  const sorted = Object.values(groups).sort((a, b) => {
+    const aSpans = new Set(a.items.map(r => r["Date Range"])).size;
+    const bSpans = new Set(b.items.map(r => r["Date Range"])).size;
+    if (bSpans !== aSpans) return bSpans - aSpans;
+    return b.items.length - a.items.length;
+  });
+
+  const total = rows.length;
+  const recurring = sorted.filter(g => new Set(g.items.map(r => r["Date Range"])).size > 1).length;
+
+  panel.innerHTML = `
+    <div class="review-header">
+      <span class="material-icons-round">summarize</span>
+      <strong>Overall Review — ${activeMonth}</strong>
+      <span class="review-meta">${sorted.length} sub-modules · ${total} observations · ${recurring} recurring</span>
+      <button class="insight-close" onclick="document.getElementById('review-panel').style.display='none'">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+    <div class="review-body">
+      ${sorted.map(g => {
+    const periods = [...new Set(g.items.map(r => r["Date Range"]))];
+    const recurring = periods.length > 1;
+    return `
+          <div class="review-group ${recurring ? "review-recurring" : ""}">
+            <div class="review-group-hdr">
+              <span class="module-badge ${getModuleClass(g.mod)}">${g.mod}</span>
+              <span class="review-submod">${g.subMod}</span>
+              ${recurring
+        ? `<span class="recurring-badge"><span class="material-icons-round">loop</span>${periods.length} periods</span>`
+        : ""}
+              <span class="review-cnt">${g.items.length} obs</span>
+            </div>
+            <div class="review-items">
+              ${g.items.map(r => `
+                <div class="review-item">
+                  <span class="review-period-tag">${r["Date Range"] || ""}</span>
+                  <span class="review-obs-text">${r["Observations"] || ""}</span>
+                  <div class="review-item-badges">
+                    <span class="cat-badge ${getCategoryClass(r["Error Category"])}">${r["Error Category"] || "—"}</span>
+                    <span class="imp-badge ${getImpactClass(r["Error Impact"])}">${r["Error Impact"] || "—"}</span>
+                    <span class="status-badge ${getStatusClass(r["Status"])}">${r["Status"] || "Open"}</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+  }).join("")}
+    </div>
+  `;
+
+  panel.style.display = "block";
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-
-/* ─── Master Render ──────────────────────────── */
+/* ─── Master Render ─────────────────────────────────────── */
 function renderAll() {
   renderMonthTabs();
-  renderSubmenu();
+  renderSidebar();
 
   const monthRows = rowsForMonth(activeMonth);
   if (monthRows.length === 0) {
@@ -428,7 +428,7 @@ function renderAll() {
       <div class="empty-state">
         <span class="material-icons-round">event_note</span>
         <h3>No Reports Yet for ${MONTHS.find(m => m.key === activeMonth)?.label}</h3>
-        <p>Reports will appear here once the Excel file is updated with entries for this month and <code>convert_excel.py</code> is run.</p>
+        <p>Update reports.xlsx and run <code>python convert_excel.py</code> to populate this month.</p>
       </div>`;
     return;
   }
@@ -436,20 +436,19 @@ function renderAll() {
   renderContentPanel();
 }
 
-/* ─── Boot ───────────────────────────────────── */
+/* ─── Boot ──────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof REPORT_DATA === "undefined") {
     document.getElementById("main-content").innerHTML = `
       <div class="empty-state">
         <span class="material-icons-round">warning_amber</span>
         <h3>Data Not Loaded</h3>
-        <p>Please run <code>python convert_excel.py</code> in the project folder to generate <code>data.js</code>, then refresh this page.</p>
+        <p>Run <code>python convert_excel.py</code> to generate <code>data.js</code>, then refresh.</p>
       </div>`;
     return;
   }
 
-  // Wire insights button
-  document.getElementById("btn-insights").addEventListener("click", generateInsights);
+  document.getElementById("btn-overall-review").addEventListener("click", renderOverallReview);
 
   renderAll();
 });
