@@ -303,68 +303,78 @@ function renderContentPanel() {
   renderTable(rows);
 }
 
-/* ─── Generate Insights (Gemini via secure backend) ── */
+/* ─── Show Insights (reads pre-generated insights.json) ── */
 async function generateInsights() {
   const btn = document.getElementById("btn-insights");
   const panel = document.getElementById("insights-panel");
+  const period = activeDateRange || activeMonth;
 
-  // Determine which rows to analyse
-  const rows = activeDateRange
-    ? rowsForDateRange(activeDateRange)
-    : rowsForMonth(activeMonth);
-
-  if (!rows || rows.length === 0) {
+  if (!period) {
     panel.style.display = "block";
-    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">info</span> Please select a date range first to generate insights.</div>`;
+    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">info</span> Please select a date range first.</div>`;
     return;
   }
 
   // Loading state
   btn.disabled = true;
-  btn.innerHTML = `<span class="material-icons-round spin">progress_activity</span> Generating…`;
+  btn.innerHTML = `<span class="material-icons-round spin">progress_activity</span> Loading…`;
   panel.style.display = "block";
-  panel.innerHTML = `<div class="insight-loading"><span class="material-icons-round spin">progress_activity</span> Analysing observations with Gemini AI…</div>`;
-
-  // Build prompt
-  const moduleGroups = {};
-  rows.forEach(r => {
-    const m = r["Modules"] || "Unknown";
-    if (!moduleGroups[m]) moduleGroups[m] = [];
-    moduleGroups[m].push(`- [${r["Sub-Modules"]}] ${r["Observations"]} (Status: ${r["Status"] || "Open"})`);
-  });
-
-  let promptText = `You are a senior QA analyst. Below are software testing observations grouped by module for the period "${activeDateRange || activeMonth}". For each module, write:\n1. A short summary paragraph of the issues found.\n2. Specific, actionable fix suggestions for the development team.\n\nKeep the tone professional but concise. Format clearly with module names as bold headings.\n\n`;
-
-  for (const [mod, obs] of Object.entries(moduleGroups)) {
-    promptText += `**Module: ${mod}**\n${obs.join("\n")}\n\n`;
-  }
+  panel.innerHTML = `<div class="insight-loading"><span class="material-icons-round spin">progress_activity</span> Loading insights…</div>`;
 
   try {
-    // Call our secure backend proxy — API key never touches the browser
-    const res = await fetch("/api/insights", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: promptText })
-    });
+    const res = await fetch("insights.json");
+
+    // insights.json not found — guide the user
+    if (res.status === 404) {
+      panel.innerHTML = `
+        <div class="insight-error">
+          <span class="material-icons-round">cloud_off</span>
+          No insights file found. Run <code>python generate_insights.py</code> locally,
+          then push <code>insights.json</code> to GitHub.
+        </div>`;
+      return;
+    }
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
-    const text = data?.text || "No response received.";
+    // Find the insight matching the current selected period
+    const insight = data?.periods?.[period];
 
-    // Render markdown-like output
-    const html = text
+    if (!insight) {
+      // List available periods to help the user
+      const available = Object.keys(data?.periods || {}).join(", ") || "none";
+      panel.innerHTML = `
+        <div class="insight-error">
+          <span class="material-icons-round">search_off</span>
+          No insight found for <strong>"${period}"</strong>.<br>
+          <small>Available: ${available}</small><br><br>
+          Run <code>python generate_insights.py</code> and push the updated <code>insights.json</code>.
+        </div>`;
+      return;
+    }
+
+    if (insight.error) {
+      throw new Error(insight.error);
+    }
+
+    // Render markdown-like text
+    const html = (insight.text || "")
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/^## (.+)$/gm, "<h3>$1</h3>")
-      .replace(/^# (.+)$/gm, "<h2>$1</h2>")
+      .replace(/^###\s(.+)$/gm, "<h4>$1</h4>")
+      .replace(/^##\s(.+)$/gm, "<h3>$1</h3>")
+      .replace(/^#\s(.+)$/gm, "<h2>$1</h2>")
       .replace(/\n{2,}/g, "</p><p>")
       .replace(/\n/g, "<br>");
+
+    const generated = data.generated_at ? `Generated ${data.generated_at}` : "";
 
     panel.innerHTML = `
       <div class="insight-header">
         <span class="material-icons-round">auto_awesome</span>
         <strong>AI Insights</strong>
-        <span style="font-size:0.75rem;color:var(--neutral-600);margin-left:auto">Powered by Gemini · ${activeDateRange || activeMonth}</span>
+        <span style="font-size:0.75rem;color:var(--neutral-600);margin-left:auto">${generated} · ${period}</span>
         <button class="insight-close" onclick="document.getElementById('insights-panel').style.display='none'">
           <span class="material-icons-round">close</span>
         </button>
@@ -373,12 +383,13 @@ async function generateInsights() {
     `;
 
   } catch (e) {
-    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">error_outline</span> Error: ${e.message}</div>`;
+    panel.innerHTML = `<div class="insight-error"><span class="material-icons-round">error_outline</span> ${e.message}</div>`;
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<span class="material-icons-round">auto_awesome</span> Generate Insights`;
+    btn.innerHTML = `<span class="material-icons-round">auto_awesome</span> View Insights`;
   }
 }
+
 
 /* ─── Master Render ──────────────────────────── */
 function renderAll() {
